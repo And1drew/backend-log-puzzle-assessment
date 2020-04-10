@@ -23,6 +23,7 @@ import re
 import sys
 from urllib import request
 import argparse
+from collections import OrderedDict
 
 
 def read_urls(filename):
@@ -30,18 +31,19 @@ def read_urls(filename):
     extracting the hostname from the filename itself.
     Screens out duplicate urls and returns the urls sorted into
     increasing order."""
-    url_list = []
+    url_dict = {}
     with open(filename, 'r') as f:
         text = f.readlines()
         for line in text:
             match = re.search(r'(?:\s)(/.*?/puzzle/.*?(.{5}jpg))', line)
             if match:
                 url = "https://code.google.com" + match.group(1)
-                url_list.append(url)
-        url_list.sort()
-        filtered_list = list(dict.fromkeys(url_list))
-        print(filtered_list)
-        return filtered_list
+                url_sort_key = match.group(2)
+                url_dict[url_sort_key] = url
+        filtered_list = url_dict
+        filtered_list = OrderedDict(sorted(url_dict.items()))
+        print(filtered_list.items())
+        return filtered_list.values()
 
 
 def download_images(img_urls, dest_dir):
